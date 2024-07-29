@@ -1,0 +1,55 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Amazon DocumentDB (with MongoDB compatibility) Cluster'
+
+Resources:
+  MyDocDBCluster:
+    Type: 'AWS::DocDB::DBCluster'
+    Properties:
+      MasterUsername: 'masteruser'
+      MasterUserPassword: 'masterpassword'
+      DBClusterIdentifier: 'my-docdb-cluster'
+      EngineVersion: '3.6.0'
+      VpcSecurityGroupIds:
+        - 'sg-0123456789abcdef0'
+      DBSubnetGroupName: !Ref DocDBSubnetGroup
+
+  MyDocDBInstance1:
+    Type: 'AWS::DocDB::DBInstance'
+    Properties:
+      DBClusterIdentifier: !Ref MyDocDBCluster
+      DBInstanceClass: 'db.r5.large'
+      DBInstanceIdentifier: 'my-docdb-instance1'
+      AvailabilityZone: 'us-west-2a'
+
+  MyDocDBInstance2:
+    Type: 'AWS::DocDB::DBInstance'
+    Properties:
+      DBClusterIdentifier: !Ref MyDocDBCluster
+      DBInstanceClass: 'db.r5.large'
+      DBInstanceIdentifier: 'my-docdb-instance2'
+      AvailabilityZone: 'us-west-2b'
+
+  DocDBSubnetGroup:
+    Type: 'AWS::DocDB::DBSubnetGroup'
+    Properties:
+      DBSubnetGroupDescription: 'My DocumentDB subnet group'
+      SubnetIds:
+        - 'subnet-0123456789abcdef0'
+        - 'subnet-0123456789abcdef1'
+
+Outputs:
+  DocDBClusterEndpoint:
+    Description: 'The endpoint of the DocumentDB cluster'
+    Value: !GetAtt 
+      - MyDocDBCluster
+      - Endpoint
+    Export:
+      Name: 'DocDBClusterEndpoint'
+
+  DocDBReaderEndpoint:
+    Description: 'The reader endpoint of the DocumentDB cluster'
+    Value: !GetAtt 
+      - MyDocDBCluster
+      - ReadEndpoint
+    Export:
+      Name: 'DocDBReaderEndpoint'
